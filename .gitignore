@@ -1,5 +1,4 @@
 # dependencies
-text
 client/node_modules/
 node_modules/
 /.pnp
@@ -39,4 +38,4 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-*.d.ts
+.next
