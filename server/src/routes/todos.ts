@@ -1,9 +1,21 @@
-import { Router } from "express";
+import { Router, Request, Response } from "express";
 import pool from "../db/index.js";
 
 const router = Router();
 
-router.get("/", async (req, res) => {
+interface TodoRequest {
+  title?: string;
+  completed?: string;
+}
+
+interface TodoRow {
+  id: number;
+  title: string;
+  completed: boolean;
+  created_at: string;
+}
+
+router.get("/", async (req: Request, res: Response) => {
   try {
     const result = await pool.query(
       "SELECT * FROM todos ORDER BY created_at DESC",
@@ -15,7 +27,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-router.post("/", async (req, res) => {
+router.post("/", async (req: Request<{}, {}, TodoRequest>, res: Response) => {
   try {
     const { title } = req.body;
 
@@ -35,28 +47,31 @@ router.post("/", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
-  try {
-    const { id } = req.params;
-    const { completed } = req.body;
+router.put(
+  "/:id",
+  async (req: Request<{ id: string }, {}, TodoRequest>, res: Response) => {
+    try {
+      const { id } = req.params;
+      const { completed } = req.body;
 
-    const result = await pool.query(
-      "UPDATE todos SET completed = ($1) WHERE id = ($2) RETURNING *",
-      [completed, id],
-    );
+      const result = await pool.query(
+        "UPDATE todos SET completed = ($1) WHERE id = ($2) RETURNING *",
+        [completed, id],
+      );
 
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: "Tarefa não encontrada" });
+      if (result.rows.length === 0) {
+        return res.status(404).json({ error: "Tarefa não encontrada" });
+      }
+
+      res.status(200).json(result.rows[0]);
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: "Erro ao atualizar tarefa" });
     }
+  },
+);
 
-    res.status(200).json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: "Erro ao atualizar tarefa" });
-  }
-});
-
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", async (req: Request<{ id: string }>, res: Response) => {
   try {
     const { id } = req.params;
 
@@ -65,7 +80,7 @@ router.delete("/:id", async (req, res) => {
       [id],
     );
 
-    if (result.rows === 0) {
+    if (result.rows.length === 0) {
       return res.status(404).json({ error: "Tarefa não encontrada " });
     }
 

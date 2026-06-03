@@ -1,10 +1,10 @@
 import "dotenv/config";
-import express from "express";
+import express, { Express } from "express";
 import cors from "cors";
-import pool from "./db/index.js";
-import todosRouter from "./routes/todos.js";
+import pool from "./db/index";
+import todosRouter from "./routes/todos";
 
-const app = express();
+const app: Express = express();
 
 app.use(cors());
 app.use(express.json());
