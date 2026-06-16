@@ -1,6 +1,11 @@
 const BASE_URL = "http://localhost:3001/api";
 
-
+export interface Todo {
+  id: number
+  title: string
+  completed: boolean
+  created_at: string
+}
 
 export async function getTodos() {
   const res = await fetch(`${BASE_URL}/todos`);
